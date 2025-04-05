@@ -2,6 +2,7 @@ package com.example.AttendanceDB.auth.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -88,11 +89,13 @@ public class AuthenticationService {
 						request.getPassword()));
 
 		var user = userRepository.findByUsername(request.getUsername())
-				.orElseThrow();
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
 		var jwtToken = jwtUtil.generateToken(user);
 		return AuthenticationResponse.builder()
 				.token(jwtToken)
+				.username(user.getUsername())
+				.role(user.getRole().name())
 				.build();
 	}
 }
