@@ -1,49 +1,58 @@
 package com.example.AttendanceDB.service;
 
 import com.example.AttendanceDB.entity.Attendance;
-import com.example.AttendanceDB.entity.Student;
-import com.example.AttendanceDB.enums.AttendanceStatus;
 import com.example.AttendanceDB.repository.AttendanceRepository;
-import com.example.AttendanceDB.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
 public class AttendanceService {
 
-    @Autowired
-    private AttendanceRepository attendanceRepo;
+	@Autowired
+	private AttendanceRepository attendanceRepository;
 
-    @Autowired
-    private StudentRepository studentRepo;
+	public Attendance saveAttendance(Attendance attendance) {
+		// Prevent duplicate attendance entry for the same student on the same date
+		boolean exists = attendanceRepository
+				.findByStudent_IdAndDate(attendance.getStudent().getId(), attendance.getDate())
+				.isPresent();
 
-    public Attendance saveAttendance(Attendance attendance){
-        Attendance attendance1 = attendanceRepo.findByDate(attendance.getDate()).orElse(null);
+		if (exists) {
+			throw new IllegalArgumentException("Attendance for student " + attendance.getStudent().getId()
+					+ " on " + attendance.getDate() + " already exists.");
+		}
 
-        if(attendance1 == null){
-            attendance.setDate(new Date());
-            attendance.setStatus(AttendanceStatus.PRESENT);
-            return attendanceRepo.save(attendance);
-        }else{
-            return null;
-        }
-    }
+		return attendanceRepository.save(attendance);
+	}
 
-    public List<Attendance> getStudentAttendance (Student studentId){
-        Student student = studentRepo.findById(studentId.getId()).orElse(null);
+	public List<Attendance> getAttendancesByStudentId(String studentId) {
+		return attendanceRepository.findByStudent_Id(studentId);
+	}
 
-        if(student != null) {
-            List<Attendance> attendance = attendanceRepo.findByStudent(student);
-            return attendance;
-        }else{
-            return null;
-        }
-    }
+	public List<Attendance> getAllAttendances() {
+		return attendanceRepository.findAll();
+	}
 
-    public List<Attendance> getAllAttendance (){
-       return attendanceRepo.findAll();
-    }
+	public Attendance getAttendanceById(Integer id) {
+		return attendanceRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Attendance with ID " + id + " not found."));
+	}
+
+	public Attendance updateAttendance(Integer id, Attendance updated) {
+		Attendance existing = getAttendanceById(id);
+		existing.setStudent(updated.getStudent());
+		existing.setSchoolClass(updated.getSchoolClass());
+		existing.setDate(updated.getDate());
+		existing.setStatus(updated.getStatus());
+		return attendanceRepository.save(existing);
+	}
+
+	public void deleteAttendance(Integer id) {
+		if (!attendanceRepository.existsById(id)) {
+			throw new IllegalArgumentException("Cannot delete. Attendance with ID " + id + " does not exist.");
+		}
+		attendanceRepository.deleteById(id);
+	}
 }

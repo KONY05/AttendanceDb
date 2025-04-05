@@ -1,48 +1,50 @@
 package com.example.AttendanceDB.controller;
 
 import com.example.AttendanceDB.entity.Attendance;
-import com.example.AttendanceDB.entity.Student;
-import com.example.AttendanceDB.response.Response;
 import com.example.AttendanceDB.service.AttendanceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/attendances")
+@RequiredArgsConstructor
 public class AttendanceController {
 
-    @Autowired
-    private AttendanceService service;
+	private final AttendanceService attendanceService;
 
-    // Post mapping
-    @PostMapping("/takeAttendance")
-    public ResponseEntity<?> saveAttendance(@RequestBody Attendance attendance){
-        Attendance attendance1 = service.saveAttendance(attendance);
+	@PostMapping
+	public ResponseEntity<String> saveAttendance(@RequestBody Attendance attendance) {
+		Attendance saved = attendanceService.saveAttendance(attendance);
+		return ResponseEntity.ok("Attendance saved with ID: " + saved.getAttendanceId());
+	}
 
-        if(attendance1 == null){
-            return new ResponseEntity<>(new Response("99", "Attendance already taken"), HttpStatus.OK);
-        } return new ResponseEntity<>(new Response("00", "Attendance taken successfully"), HttpStatus.CREATED);
-    }
+	@GetMapping
+	public ResponseEntity<List<Attendance>> getAllAttendances() {
+		return ResponseEntity.ok(attendanceService.getAllAttendances());
+	}
 
-    // Get mapping
-    @GetMapping("/getStudentAttendance/{studentId}")
-    public ResponseEntity<?> getAttendanceById(@PathVariable Student studentId){
-        List<Attendance> attendance = service.getStudentAttendance(studentId);
+	@GetMapping("/{id}")
+	public ResponseEntity<Attendance> getAttendanceById(@PathVariable Integer id) {
+		return ResponseEntity.ok(attendanceService.getAttendanceById(id));
+	}
 
-        if(attendance == null){
-            return new ResponseEntity<>(new Response("99", "Student does not exist"), HttpStatus.OK);
-        } return new ResponseEntity<>(attendance, HttpStatus.FOUND);
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<String> updateAttendance(@PathVariable Integer id, @RequestBody Attendance attendance) {
+		Attendance updated = attendanceService.updateAttendance(id, attendance);
+		return ResponseEntity.ok("Attendance updated with ID: " + updated.getAttendanceId());
+	}
 
-    @GetMapping("/getAllAttendance")
-    public ResponseEntity<?> getAllAttendance(){
-        List<Attendance> attendance = service.getAllAttendance();
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteAttendance(@PathVariable Integer id) {
+		attendanceService.deleteAttendance(id);
+		return ResponseEntity.ok("Attendance deleted successfully");
+	}
 
-        if(attendance.isEmpty()){
-            return new ResponseEntity<>(new Response("99", "Attendance is empty"), HttpStatus.OK);
-        }return new ResponseEntity<>(attendance, HttpStatus.FOUND);
-    }
+	@GetMapping("/student/{studentId}")
+	public ResponseEntity<List<Attendance>> getAttendanceByStudent(@PathVariable String studentId) {
+		return ResponseEntity.ok(attendanceService.getAttendancesByStudentId(studentId));
+	}
 }

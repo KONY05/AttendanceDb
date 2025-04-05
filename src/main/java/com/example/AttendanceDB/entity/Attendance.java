@@ -1,35 +1,34 @@
 package com.example.AttendanceDB.entity;
 
-import com.example.AttendanceDB.enums.AttendanceStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
+
+import com.example.AttendanceDB.enums.AttendanceStatus;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Attendance {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer attendanceId;
 
-    @Enumerated(EnumType.STRING)
-    private AttendanceStatus status;
+	private LocalDate date;
 
-    @Temporal(TemporalType.DATE)
-    private Date date;
+	@Enumerated(EnumType.STRING)
+	private AttendanceStatus status; // Present/Absent
 
-    @ManyToOne
-    @JoinColumn(name = "class_id", referencedColumnName = "id")
-    private ClassEntity classEntity;
+	@ManyToOne
+	@JoinColumn(name = "student_id")
+	private Student student;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id", referencedColumnName = "id")
-    private Student student;
+	@ManyToOne
+	@JoinColumn(name = "class_id")
+	private ClassEntity schoolClass;
 
 }

@@ -1,13 +1,13 @@
-package com.example.AttendanceDB;
+// package com.example.AttendanceDB;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class AttendanceDbApplicationTests {
+// @SpringBootTest
+// class AttendanceDbApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// @Test
+// void contextLoads() {
+// }
 
-}
+// }

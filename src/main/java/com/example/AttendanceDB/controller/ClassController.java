@@ -1,41 +1,45 @@
 package com.example.AttendanceDB.controller;
 
 import com.example.AttendanceDB.entity.ClassEntity;
-import com.example.AttendanceDB.response.Response;
 import com.example.AttendanceDB.service.ClassService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/classes")
+@RequiredArgsConstructor
 public class ClassController {
 
-    @Autowired
-    private ClassService service;
+	private final ClassService classService;
 
-    // Post Mapping
-    @PostMapping("/saveClass")
-    public ResponseEntity<?> saveClass(@RequestBody ClassEntity classEntity){
-        ClassEntity classEntity1 = service.saveClass(classEntity);
+	@PostMapping
+	public ResponseEntity<String> saveClass(@RequestBody ClassEntity classEntity) {
+		ClassEntity saved = classService.saveClass(classEntity);
+		return ResponseEntity.ok("Class saved with ID: " + saved.getClassId());
+	}
 
-        if(classEntity1 == null){
-            return new ResponseEntity<>(new Response("99", "Class does not exist"), HttpStatus.OK);
-        } return new ResponseEntity<>(new Response("00", "Class saved successfully"), HttpStatus.CREATED);
-    }
+	@GetMapping
+	public ResponseEntity<List<ClassEntity>> getAllClasses() {
+		return ResponseEntity.ok(classService.getAllClasses());
+	}
 
-    // Get Mapping
-    @GetMapping("/getAllClasses")
-    public ResponseEntity<?> getAllClasses(){
-        List<ClassEntity> classEntities = service.getAllClasses();
+	@GetMapping("/{id}")
+	public ResponseEntity<ClassEntity> getClassById(@PathVariable Integer id) {
+		return ResponseEntity.ok(classService.getClassById(id));
+	}
 
-        if(classEntities.isEmpty()){
-            return new ResponseEntity<>(new Response("99", "No class created"), HttpStatus.OK);
-        } return new ResponseEntity<>(classEntities, HttpStatus.FOUND);
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<String> updateClass(@PathVariable Integer id, @RequestBody ClassEntity classEntity) {
+		ClassEntity updated = classService.updateClass(id, classEntity);
+		return ResponseEntity.ok("Class updated with ID: " + updated.getClassId());
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteClass(@PathVariable Integer id) {
+		classService.deleteClass(id);
+		return ResponseEntity.ok("Class deleted successfully");
+	}
 }

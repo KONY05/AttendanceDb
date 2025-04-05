@@ -1,23 +1,36 @@
 package com.example.AttendanceDB.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "class_entity")
 public class ClassEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-    private String className;
-    private String location;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer classId;
+
+	private String className;
+	private String section;
+
+	@ManyToOne
+	@JoinColumn(name = "class_teacher_id")
+	private Teacher classTeacher;
+
+	@OneToMany(mappedBy = "schoolClass")
+	private List<Student> students;
+
+	@OneToMany(mappedBy = "schoolClass")
+	private List<Subject> subjects;
+
+	@OneToMany(mappedBy = "schoolClass")
+	private List<Timetable> timetableList;
+
 }

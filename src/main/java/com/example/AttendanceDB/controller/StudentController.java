@@ -1,36 +1,45 @@
 package com.example.AttendanceDB.controller;
 
 import com.example.AttendanceDB.entity.Student;
-import com.example.AttendanceDB.response.Response;
 import com.example.AttendanceDB.service.StudentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("/api/students")
+@RequiredArgsConstructor
 public class StudentController {
 
-    @Autowired
-    private StudentService service;
+	private final StudentService studentService;
 
-    // Post mapping
-    @PostMapping("/saveStudent")
-    public ResponseEntity<?> saveStudent(@RequestBody Student student){
-        Student student1 = service.saveStudent(student);
+	@PostMapping
+	public ResponseEntity<String> saveStudent(@RequestBody Student student) {
+		Student savedStudent = studentService.saveStudent(student);
+		return ResponseEntity.ok("Student saved with ID: " + savedStudent.getId());
+	}
 
-        if(student1 == null){
-            return new ResponseEntity<>(new Response("99", "Student already exists"), HttpStatus.OK);
-        } return new ResponseEntity<>(new Response("00", "Student saved succesffully"), HttpStatus.CREATED);
-    }
+	@GetMapping
+	public ResponseEntity<List<Student>> getAllStudents() {
+		return ResponseEntity.ok(studentService.getAllStudents());
+	}
 
-    // Get mapping
-    @GetMapping("/getStudent/{studentId}")
-    public ResponseEntity<?> getStudentById(@PathVariable Integer studentId){
-        Student student = service.getStudentById(studentId);
+	@GetMapping("/{id}")
+	public ResponseEntity<Student> getStudentById(@PathVariable String id) {
+		return ResponseEntity.ok(studentService.getStudentById(id));
+	}
 
-        if(student == null){
-            return new ResponseEntity<>(new Response("99", "Student does not exist"), HttpStatus.OK);
-        } return new ResponseEntity<>(student, HttpStatus.FOUND);
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<String> updateStudent(@PathVariable String id, @RequestBody Student student) {
+		Student updated = studentService.updateStudent(id, student);
+		return ResponseEntity.ok("Student updated with ID: " + updated.getId());
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteStudent(@PathVariable String id) {
+		studentService.deleteStudent(id);
+		return ResponseEntity.ok("Student deleted successfully");
+	}
 }
